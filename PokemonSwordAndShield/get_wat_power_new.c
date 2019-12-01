@@ -517,10 +517,10 @@ void HID_Task(void) {
 		        GetNextReport(&JoystickInputData, dayLoop);
 		    }
             // 25日実行用
-            GetNextReport(&JoystickInputData);
+            GetNextReport(&JoystickInputData, monthLoop);
 		}
 		// 年更新用
-		GetNextReport(&JoystickInputData);
+		GetNextReport(&JoystickInputData, yearLoop);
 
 		// Once populated, we can output this data to the host. We do this by first writing the data to the control stream.
 		while(Endpoint_Write_Stream_LE(&JoystickInputData, sizeof(JoystickInputData), NULL) != ENDPOINT_RWSTREAM_NoError);
@@ -551,7 +551,7 @@ int duration_count = 0;
 int portsval = 0;
 
 // Prepare the next report for the host.
-void GetNextReport(USB_JoystickReport_Input_t* const ReportData, commandList) {
+void GetNextReport(USB_JoystickReport_Input_t* const ReportData, command commandList) {
 
 	// Prepare an empty report
 	memset(ReportData, 0, sizeof(USB_JoystickReport_Input_t));
