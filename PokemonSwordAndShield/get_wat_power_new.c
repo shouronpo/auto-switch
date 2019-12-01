@@ -41,6 +41,7 @@ typedef enum {
 	R,
 	ZR,
 	PLUS,
+	HOME,
 	NOTHING,
 	TRIGGERS
 } Buttons_t;
