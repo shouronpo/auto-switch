@@ -1,4 +1,8 @@
 /*
+ * 開始時の条件：
+ * Aボタンでエネルギーが出ている巣穴を調べられる状態からスタートさせる。
+ */
+/*
 Nintendo Switch Fightstick - Proof-of-Concept
 
 Based on the LUFA library's Low-Level Joystick Demo
@@ -20,34 +24,7 @@ these buttons for our use.
 
 #include "Joystick.h"
 
-typedef enum {
-	UP,
-	DOWN,
-	LEFT,
-	RIGHT,
-	R_UP,
-	R_DOWN,
-	R_LEFT,
-	R_RIGHT,
-	X,
-	Y,
-	A,
-	B,
-	L,
-	R,
-	ZR,
-	PLUS,
-	NOTHING,
-	TRIGGERS
-} Buttons_t;
-
-typedef struct {
-	Buttons_t button;
-	uint16_t duration;
-} command; 
-
-static const command step[] = {
-	/* Aボタンで巣穴を調べられる状態からスタートさせる。 */
+static const command setController[] = {
 	// コントローラ接続
 	{ NOTHING,  250 },
 	{ TRIGGERS,  20 },
@@ -57,7 +34,12 @@ static const command step[] = {
 	{ A,         20 },
 	{ NOTHING,  250 },
 
-	/** 日付 1日～25日までループ Start **/
+	// 最後の処理
+	{ NOTHING,   50 }
+};
+
+static const command dayLoop[] = {
+	/** 日付 「日」をインクリメント **/
 
 	// 巣穴を調べてエネルギーゲット（日ループ）
 	{ A,         20 },
@@ -123,7 +105,7 @@ static const command step[] = {
 
 	{ NOTHING,   50 },
 
-	// 「分」だけ変更
+	// 「日」のみ変更
 	{ RIGHT,     20 },
 	{ RIGHT,     20 },
 	{ UP,        20 },
@@ -131,9 +113,266 @@ static const command step[] = {
 	{ RIGHT,     20 },
 	{ RIGHT,     20 },
 
-	/** 日付 1日～25日までループ End **/
+    // メニューに戻る
+	{ A,         20 },
+	{ B,         20 },
+	{ B,         20 },
+	{ B,         20 },
 
+    // ゲームに戻る
+	{ UP,        20 },
+	{ LEFT,      20 },
+	{ LEFT,      20 },
+	{ A,         20 },
 
+    // マックスレイドバトルの募集をやめる
+	{ B,         20 },
+	{ NOTHING,   50 },
+	{ A,         20 },
+	{ NOTHING,  500 },
+
+	// 最後の処理
+	{ NOTHING,   50 }
+};
+
+static const command monthLoop[] = {
+	/** 日付 「月」をインクリメント **/
+
+	// 巣穴を調べてエネルギーゲット（日ループ）
+	{ A,         20 },
+	{ NOTHING,   10 },
+	{ A,         20 },
+	{ NOTHING,   10 },
+	{ A,         20 },
+
+	{ NOTHING,  100 },
+
+	// 「みんなで挑戦！」を選択
+	{ A,         20 },
+
+	{ NOTHING,  300 },
+
+	// HOMEボタンで戻る
+	{ HOME,      20 },
+
+	{ NOTHING,   50 },
+
+	// 「設定」を選択
+	{ DOWN,      20 },
+	{ RIGHT,     20 },
+	{ RIGHT,     20 },
+	{ RIGHT,     20 },
+	{ RIGHT,     20 },
+	{ A,         20 },
+
+	{ NOTHING,  100 },
+
+	// ｢本体｣を選択
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ A,         20 },
+
+	{ NOTHING,   50 },
+
+	// 「日付と時刻」を選択
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ A,         20 },
+
+	{ NOTHING,   50 },
+
+	// 「現在の日付と時刻」を選択
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ A,         20 },
+
+	{ NOTHING,   50 },
+
+	// 「月」を変更して、「日」を戻す
+	{ RIGHT,     20 },
+	{ UP,        20 },
+	{ RIGHT,     20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ RIGHT,     20 },
+	{ RIGHT,     20 },
+	{ RIGHT,     20 },
+
+    // メニューに戻る
+	{ A,         20 },
+	{ B,         20 },
+	{ B,         20 },
+	{ B,         20 },
+
+    // ゲームに戻る
+	{ UP,        20 },
+	{ LEFT,      20 },
+	{ LEFT,      20 },
+	{ A,         20 },
+
+    // マックスレイドバトルの募集をやめる
+	{ B,         20 },
+	{ NOTHING,   50 },
+	{ A,         20 },
+	{ NOTHING,  500 },
+
+	// 最後の処理
+	{ NOTHING,   50 }
+};
+
+static const command yearLoop[] = {
+	/** 日付 「年」をインクリメント **/
+
+	// 巣穴を調べてエネルギーゲット（日ループ）
+	{ A,         20 },
+	{ NOTHING,   10 },
+	{ A,         20 },
+	{ NOTHING,   10 },
+	{ A,         20 },
+
+	{ NOTHING,  100 },
+
+	// 「みんなで挑戦！」を選択
+	{ A,         20 },
+
+	{ NOTHING,  300 },
+
+	// HOMEボタンで戻る
+	{ HOME,      20 },
+
+	{ NOTHING,   50 },
+
+	// 「設定」を選択
+	{ DOWN,      20 },
+	{ RIGHT,     20 },
+	{ RIGHT,     20 },
+	{ RIGHT,     20 },
+	{ RIGHT,     20 },
+	{ A,         20 },
+
+	{ NOTHING,  100 },
+
+	// ｢本体｣を選択
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ A,         20 },
+
+	{ NOTHING,   50 },
+
+	// 「日付と時刻」を選択
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ A,         20 },
+
+	{ NOTHING,   50 },
+
+	// 「現在の日付と時刻」を選択
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ A,         20 },
+
+	{ NOTHING,   50 },
+
+	// 「年」と「月」を変更して、「日」を戻す
+	{ UP,        20 },
+	{ RIGHT,     20 },
+	{ UP,        20 },
+	{ RIGHT,     20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ DOWN,      20 },
+	{ RIGHT,     20 },
+	{ RIGHT,     20 },
+	{ RIGHT,     20 },
+
+    // メニューに戻る
+	{ A,         20 },
+	{ B,         20 },
+	{ B,         20 },
+	{ B,         20 },
+
+    // ゲームに戻る
+	{ UP,        20 },
+	{ LEFT,      20 },
+	{ LEFT,      20 },
+	{ A,         20 },
+
+    // マックスレイドバトルの募集をやめる
+	{ B,         20 },
+	{ NOTHING,   50 },
+	{ A,         20 },
+	{ NOTHING,  500 },
 
 	// 最後の処理
 	{ NOTHING,   50 }
@@ -241,7 +480,21 @@ void HID_Task(void) {
 		// We'll create an empty report.
 		USB_JoystickReport_Input_t JoystickInputData;
 		// We'll then populate this report with what we want to send to the host.
-		GetNextReport(&JoystickInputData);
+
+        // コントローラーのセット
+		GetNextReport(&JoystickInputData, setController);
+
+		for(int i=0; i < 12; i++) {
+			for(int j=0; j < 24; j++) {
+				// 1日〜24日まで24回実行
+				GetNextReport(&JoystickInputData, dayLoop);
+			}
+			// 25日実行用
+			GetNextReport(&JoystickInputData, monthLoop);
+		}
+		// 年更新用
+		GetNextReport(&JoystickInputData, yearLoop);
+
 		// Once populated, we can output this data to the host. We do this by first writing the data to the control stream.
 		while(Endpoint_Write_Stream_LE(&JoystickInputData, sizeof(JoystickInputData), NULL) != ENDPOINT_RWSTREAM_NoError);
 		// We then send an IN packet on this endpoint.
@@ -271,7 +524,7 @@ int duration_count = 0;
 int portsval = 0;
 
 // Prepare the next report for the host.
-void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
+void GetNextReport(USB_JoystickReport_Input_t* const ReportData, command commandList[]) {
 
 	// Prepare an empty report
 	memset(ReportData, 0, sizeof(USB_JoystickReport_Input_t));
@@ -344,39 +597,39 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
 		case PROCESS:
 
-			switch (step[bufindex].button)
+			switch (commandList[bufindex].button)
 			{
 
 				case UP:
-					ReportData->LY = STICK_MIN;				
+					ReportData->LY = STICK_MIN;
 					break;
 
 				case LEFT:
-					ReportData->LX = STICK_MIN;				
+					ReportData->LX = STICK_MIN;
 					break;
 
 				case DOWN:
-					ReportData->LY = STICK_MAX;				
+					ReportData->LY = STICK_MAX;
 					break;
 
 				case RIGHT:
-					ReportData->LX = STICK_MAX;				
+					ReportData->LX = STICK_MAX;
 					break;
 
 				case R_UP:
-					ReportData->RY = STICK_MIN;				
+					ReportData->RY = STICK_MIN;
 					break;
 
 				case R_LEFT:
-					ReportData->RX = STICK_MIN;				
+					ReportData->RX = STICK_MIN;
 					break;
 
 				case R_DOWN:
-					ReportData->RY = STICK_MAX;				
+					ReportData->RY = STICK_MAX;
 					break;
 
 				case R_RIGHT:
-					ReportData->RX = STICK_MAX;				
+					ReportData->RX = STICK_MAX;
 					break;
 
 				case A:
@@ -405,7 +658,7 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
 				case PLUS:
 					ReportData->Button |= SWITCH_PLUS;
-					break;SWITCH_HOME
+					break;
 
 				case HOME:
 					ReportData->Button |= SWITCH_HOME;
@@ -426,14 +679,14 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 
 			duration_count++;
 
-			if (duration_count > step[bufindex].duration)
+			if (duration_count > commandList[bufindex].duration)
 			{
 				bufindex++;
-				duration_count = 0;				
+				duration_count = 0;
 			}
 
 
-			if (bufindex > (int)( sizeof(step) / sizeof(step[0])) - 1)
+			if (bufindex > (int)( sizeof(commandList) / sizeof(commandList[0])) - 1)
 			{
 
 				// state = CLEANUP;

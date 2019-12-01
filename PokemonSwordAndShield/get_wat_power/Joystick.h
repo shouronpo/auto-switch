@@ -71,6 +71,33 @@ typedef enum {
 	SWITCH_CAPTURE = 0x2000,
 } JoystickButtons_t;
 
+typedef enum {
+	UP,
+	DOWN,
+	LEFT,
+	RIGHT,
+	R_UP,
+	R_DOWN,
+	R_LEFT,
+	R_RIGHT,
+	X,
+	Y,
+	A,
+	B,
+	L,
+	R,
+	ZR,
+	PLUS,
+	HOME,
+	NOTHING,
+	TRIGGERS
+} Buttons_t;
+
+typedef struct {
+	Buttons_t button;
+	uint16_t duration;
+} command;
+
 #define HAT_TOP          0x00
 #define HAT_TOP_RIGHT    0x01
 #define HAT_RIGHT        0x02
@@ -118,6 +145,6 @@ void EVENT_USB_Device_Disconnect(void);
 void EVENT_USB_Device_ConfigurationChanged(void);
 void EVENT_USB_Device_ControlRequest(void);
 // Prepare the next report for the host.
-void GetNextReport(USB_JoystickReport_Input_t* const ReportData, command commandList);
+void GetNextReport(USB_JoystickReport_Input_t* const ReportData, command commandList[]);
 
 #endif
