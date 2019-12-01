@@ -684,7 +684,7 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData, commandList) {
 
 				case PLUS:
 					ReportData->Button |= SWITCH_PLUS;
-					break;SWITCH_HOME
+					break;
 
 				case HOME:
 					ReportData->Button |= SWITCH_HOME;
